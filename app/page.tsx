@@ -49,7 +49,7 @@ export default function Home() {
 
               <div className="flex items-center justify-center">
                 <Image
-                  src="/ninopapaya.jpg"
+                  src="/arboldefruta.jpeg"
                   alt="BioFresh"
                   width={520}
                   height={520}

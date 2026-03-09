@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
+
 
 export default function Header() {
     const [open, setOpen] = useState(false);
@@ -8,9 +10,13 @@ export default function Header() {
     return (
         <header className="w-full bg-green-600 text-white px-6 py-4 flex justify-between items-center shadow-md">
             {/* Logo provisional */}
-            <Link href="/" className="text-xl font-bold hover:underline">
-                Logo
-            </Link>
+           <Image
+           src="/logo (2).png"   // coloca tu archivo en la carpeta /public
+      alt="Logo BioFresh"
+      width={60}        // ajusta tamaño
+      height={60}
+      className="mr-2"
+    />
 
             {/* Menú desplegable */}
             <div className="relative">
