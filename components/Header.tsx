@@ -8,16 +8,18 @@ export default function Header() {
     const [open, setOpen] = useState(false);
 
     return (
-        <header className="w-full bg-green-200 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <header className="w-full bg-green-500 text-white px-6 py-4 flex justify-between items-center shadow-md">
             {/* Logo provisional */}
-           <Image
-           src="/logo (2).png"   // coloca tu archivo en la carpeta /public
+             <Link href="/" passHref>
+
+           <Image 
+           src="/biofresh.png"   // coloca tu archivo en la carpeta /public
       alt="Logo BioFresh"
       width={60}        // ajusta tamaño
       height={60}
-      className="mr-2"
+      className="mr-2 rounded-full"
     />
-
+       </Link>
             {/* Menú desplegable */}
             <div className="relative">
                 <button
