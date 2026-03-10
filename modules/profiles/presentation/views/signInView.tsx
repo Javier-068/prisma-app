@@ -89,7 +89,7 @@ export default function SignInView() {
                 {/* Enlace a registro */}
                 <p className="mt-4 text-center text-gray-600">
                     ¿No tienes cuenta?{" "}
-                    <Link href="/signup" className="text-blue-600 underline">
+                    <Link href="/SignUp" className="text-blue-600 underline">
                         Regístrate aquí
                     </Link>
                 </p>
