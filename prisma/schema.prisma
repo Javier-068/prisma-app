@@ -4,82 +4,76 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  // url = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
+model order {
+  id          String        @id
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  status      order_status  @default(PENDING)
+  total       Float
+  user        user          @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderdetail orderdetail[]
+
+  @@index([userId], map: "Order_userId_fkey")
 }
 
-enum OrderStatus {
+model orderdetail {
+  id        String  @id
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  order     order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey")
+  product   product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey")
+
+  @@index([orderId], map: "OrderDetail_orderId_fkey")
+  @@index([productId], map: "OrderDetail_productId_fkey")
+}
+
+model product {
+  id          String        @id
+  sku         String        @unique(map: "Product_sku_key")
+  name        String
+  description String?
+  image       String?
+  price       Float
+  stock       Int
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  orderdetail orderdetail[]
+}
+
+model user {
+  id            String    @id
+  email         String    @unique(map: "User_email_key")
+  password      String?
+  name          String?
+  emailVerified DateTime?
+  role          user_role @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  order         order[]
+}
+
+model verificationtoken {
+  identifier String
+  token      String   @unique(map: "VerificationToken_token_key")
+  expires    DateTime
+
+  @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
+}
+
+enum order_status {
   PENDING
   CONFIRMED
   DELIVERED
   CANCELLED
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String? // null para usuarios solo magic link
-  name          String?
-  emailVerified DateTime?
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relación con pedidos
-  orders Order[]
+enum user_role {
+  USER
+  ADMIN
 }
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Product {
-  id          String   @id @default(cuid())
-  sku         String   @unique
-  name        String
-  description String?
-  image       String?
-  price       Float
-  stock       Int
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relación con DetallePedido
-  orderDetails OrderDetail[]
-}
-
-model Order {
-  id        String      @id @default(cuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id])
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  status    OrderStatus @default(PENDING)
-  total     Float
-
-  // Relación con detalles
-  details OrderDetail[]
-  // Relación con venta
-}
-
-model OrderDetail {
-  id        String @id @default(cuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Float
-
-  order   Order   @relation(fields: [orderId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-}
-
-

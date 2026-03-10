@@ -8,7 +8,7 @@ export default function Header() {
     const [open, setOpen] = useState(false);
 
     return (
-        <header className="w-full bg-green-600 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <header className="w-full bg-green-200 text-white px-6 py-4 flex justify-between items-center shadow-md">
             {/* Logo provisional */}
            <Image
            src="/logo (2).png"   // coloca tu archivo en la carpeta /public
@@ -22,7 +22,7 @@ export default function Header() {
             <div className="relative">
                 <button
                     onClick={() => setOpen(!open)}
-                    className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-blue-400 px-4 py-2 rounded hover:bg-blue-400"
                 >
                     Menú
                 </button>
