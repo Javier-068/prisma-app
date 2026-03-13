@@ -29,13 +29,6 @@ export default function Home() {
               >
                 Ver catálogo
               </Link>
-
-              <Link
-                href="/products"
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50"
-              >
-                Ver productos
-              </Link>
             </div>
 
 

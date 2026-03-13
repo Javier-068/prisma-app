@@ -17,12 +17,10 @@ export default function CartView() {
         if (status === "loading") return;
 
         if (!session) {
-            // 👇 si no hay sesión, no mostrar carrito
             setItems([]);
             return;
         }
 
-        // 👇 si hay sesión, cargar carrito específico del usuario
         const stored = localStorage.getItem(`cart_${session.user.email}`);
         if (stored) {
             setItems(JSON.parse(stored));
@@ -56,6 +54,8 @@ export default function CartView() {
             </div>
         );
     }
+
+    const totalGeneral = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
         <div className="min-h-screen w-full px-4 py-8 bg-white">
@@ -98,12 +98,20 @@ export default function CartView() {
             )}
 
             {items.length > 0 && (
-                <button
-                    className="bg-green-600 text-white px-4 py-2 rounded mt-6"
-                    onClick={handleCheckout}
-                >
-                    Finalizar compra
-                </button>
+                <div className="mt-6 flex justify-between items-center">
+                    {/* Total general alineado a la izquierda */}
+                    <p className="text-xl font-bold text-gray-800">
+                        Total general: ${totalGeneral} MXN
+                    </p>
+
+                    {/* Botón alineado a la derecha */}
+                    <button
+                        className="bg-green-600 text-white px-4 py-2 rounded"
+                        onClick={handleCheckout}
+                    >
+                        Finalizar compra
+                    </button>
+                </div>
             )}
         </div>
     );
