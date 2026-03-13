@@ -4,13 +4,14 @@ generator client {
 
 datasource db {
   provider = "mysql"
+
 }
 
 model Order {
   id          String        @id
   userId      String
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime      @updatedAt
   status      order_status  @default(PENDING)
   total       Float
   user        User          @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
