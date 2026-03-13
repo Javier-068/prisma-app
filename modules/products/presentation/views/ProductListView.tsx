@@ -24,7 +24,7 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
             return;
         }
 
-        const key = `cart_${session.user.email}`; // 👈 carrito único por usuario
+        const key = `cart_${session.user.email}`;
         const stored = localStorage.getItem(key);
         const cart = stored ? JSON.parse(stored) : [];
 
@@ -75,6 +75,7 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
                             key={p.id}
                             product={p}
                             onAdd={(quantity) => handleAdd(p, quantity)}
+                            showDelete={session?.user?.role === "ADMIN"} // 👈 solo ADMIN ve el botón
                         />
                     ))
                 )}
