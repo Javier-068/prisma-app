@@ -35,13 +35,41 @@ export default function CartView() {
         }
     }
 
-    function handleCheckout() {
-        alert("Compra realizada con éxito");
-        setItems([]);
-        if (session) {
-            localStorage.removeItem(`cart_${session.user.email}`);
+ async function handleCheckout() {
+    try {
+        if (!session?.user?.email) {
+            alert("Debes iniciar sesión");
+            return;
         }
+
+        if (items.length === 0) {
+            alert("El carrito está vacío");
+            return;
+        }
+
+        const response = await fetch("/api/checkout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                items,
+                customerEmail: session.user.email,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "No se pudo iniciar el pago");
+        }
+
+        window.location.href = data.url;
+    } catch (error) {
+        console.error("Error al ir a Stripe:", error);
+        alert("No se pudo iniciar el pago");
     }
+}
 
     if (status === "loading") {
         return <p className="text-gray-500">Cargando carrito...</p>;
