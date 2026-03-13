@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 interface Product {
     id: string;
@@ -15,6 +16,7 @@ interface Product {
 
 export default function ProductDetail({ id }: { id: string }) {
     const [product, setProduct] = useState<Product | null>(null);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         async function fetchProduct() {
@@ -84,12 +86,15 @@ export default function ProductDetail({ id }: { id: string }) {
                         </div>
                     </div>
 
-                    <Link
-                        href={`/products/${product.id}/edit`}
-                        className="inline-block mt-6 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-                    >
-                        Editar producto
-                    </Link>
+                    {/* Botón solo visible si el rol es ADMIN */}
+                    {session?.user?.role === "ADMIN" && (
+                        <Link
+                            href={`/products/${product.id}/edit`}
+                            className="inline-block mt-6 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                        >
+                            Editar producto
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>

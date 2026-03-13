@@ -127,12 +127,9 @@ export default function CartView() {
 
             {items.length > 0 && (
                 <div className="mt-6 flex justify-between items-center">
-                    {/* Total general alineado a la izquierda */}
                     <p className="text-xl font-bold text-gray-800">
                         Total general: ${totalGeneral} MXN
                     </p>
-
-                    {/* Botón alineado a la derecha */}
                     <button
                         className="bg-green-600 text-white px-4 py-2 rounded"
                         onClick={handleCheckout}

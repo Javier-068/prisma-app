@@ -5,6 +5,8 @@ export function SignUpForm() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState("USER"); // 👈 por defecto USER
+    const [adminKey, setAdminKey] = useState(""); // 👈 clave secreta para ADMIN
     const [error, setError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -15,7 +17,7 @@ export function SignUpForm() {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ name, email, password, role, adminKey }), // 👈 enviamos adminKey
             });
 
             const data = await res.json();
@@ -23,14 +25,14 @@ export function SignUpForm() {
             if (!res.ok) {
                 setError(data.error || "Error en el registro");
             } else {
-                // limpiar campos si se registró correctamente
                 setName("");
                 setEmail("");
                 setPassword("");
+                setRole("USER");
+                setAdminKey("");
             }
         } catch {
             setError("Error inesperado");
-            console.log(error);
         }
     };
 
@@ -44,10 +46,7 @@ export function SignUpForm() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Nombre */}
                     <div>
-                        <label
-                            htmlFor="name"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                             Nombre
                         </label>
                         <input
@@ -58,16 +57,13 @@ export function SignUpForm() {
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Ingresa tu nombre"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                         focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                         text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                     </div>
 
                     {/* Correo electrónico */}
                     <div>
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                             Correo electrónico
                         </label>
                         <input
@@ -78,16 +74,13 @@ export function SignUpForm() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Ingresa tu correo"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                         focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                         text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                     </div>
 
                     {/* Contraseña */}
                     <div>
-                        <label
-                            htmlFor="password"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                             Contraseña
                         </label>
                         <input
@@ -98,9 +91,44 @@ export function SignUpForm() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Ingresa tu contraseña"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                         focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                         text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                     </div>
+
+                    {/* Rol */}
+                    <div>
+                        <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                            Rol
+                        </label>
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                         text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        >
+                            <option value="USER">Usuario</option>
+                            <option value="ADMIN">Administrador</option>
+                        </select>
+                    </div>
+
+                    {/* Clave de administrador (solo si selecciona ADMIN) */}
+                    {role === "ADMIN" && (
+                        <div>
+                            <label htmlFor="adminKey" className="block text-sm font-medium text-gray-700 mb-1">
+                                Clave de administrador
+                            </label>
+                            <input
+                                id="adminKey"
+                                type="password"
+                                value={adminKey}
+                                onChange={(e) => setAdminKey(e.target.value)}
+                                placeholder="Ingresa la clave secreta"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                           text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            />
+                        </div>
+                    )}
 
                     {/* Botón */}
                     <button
@@ -115,6 +143,5 @@ export function SignUpForm() {
                 {error && <p className="text-red-600 mt-4 text-center">{error}</p>}
             </div>
         </div>
-
     );
 }

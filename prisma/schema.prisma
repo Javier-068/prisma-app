@@ -7,34 +7,34 @@ datasource db {
 
 }
 
-model order {
-  id          String        @id @default(cuid())
+model Order {
+  id          String        @id
   userId      String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   status      order_status  @default(PENDING)
   total       Float
-  user        user          @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
-  orderdetail orderdetail[]
+  user        User          @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderdetail Orderdetail[]
 
   @@index([userId], map: "Order_userId_fkey")
 }
 
-model orderdetail {
-  id        String  @id @default(cuid())
+model Orderdetail {
+  id        String  @id
   orderId   String
   productId String
   quantity  Int
   price     Float
-  order     order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey")
-  product   product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey")
+  order     Order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey")
+  product   Product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey")
 
   @@index([orderId], map: "OrderDetail_orderId_fkey")
   @@index([productId], map: "OrderDetail_productId_fkey")
 }
 
-model product {
-  id          String        @id @default(cuid())
+model Product {
+  id          String        @id
   sku         String        @unique(map: "Product_sku_key")
   name        String
   description String?
@@ -43,20 +43,20 @@ model product {
   stock       Int
   active      Boolean       @default(true)
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  orderdetail orderdetail[]
+  updatedAt   DateTime
+  orderdetail Orderdetail[]
 }
 
-model user {
-  id            String    @id @default(cuid())
+model User {
+  id            String    @id
   email         String    @unique(map: "User_email_key")
   password      String?
   name          String?
   emailVerified DateTime?
   role          user_role @default(USER)
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  order         order[]
+  updatedAt     DateTime
+  order         Order[]
 }
 
 model verificationtoken {

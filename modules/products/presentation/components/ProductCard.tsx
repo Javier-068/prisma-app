@@ -17,12 +17,13 @@ interface Product {
 
 interface ProductCardProps {
     product: Product;
-    onAdd?: (quantity: number) => void; // 👈 ahora recibe cantidad
+    onAdd?: (quantity: number) => void; // botón agregar
+    showDelete?: boolean;               // 👈 controlado por el rol
 }
 
-export default function ProductCard({ product, onAdd }: ProductCardProps) {
+export default function ProductCard({ product, onAdd, showDelete }: ProductCardProps) {
     const [loading, setLoading] = useState(false);
-    const [quantity, setQuantity] = useState(1); // 👈 cantidad seleccionada
+    const [quantity, setQuantity] = useState(1);
     const router = useRouter();
 
     async function handleDelete() {
@@ -81,14 +82,16 @@ export default function ProductCard({ product, onAdd }: ProductCardProps) {
                     </p>
                 </div>
 
-                {/* Botón eliminar */}
-                <button
-                    onClick={handleDelete}
-                    disabled={loading}
-                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
-                >
-                    {loading ? "Eliminando..." : "Eliminar"}
-                </button>
+                {/* Botón eliminar solo si showDelete es true */}
+                {showDelete && (
+                    <button
+                        onClick={handleDelete}
+                        disabled={loading}
+                        className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
+                    >
+                        {loading ? "Eliminando..." : "Eliminar"}
+                    </button>
+                )}
 
                 {/* Selector de cantidad + botón agregar */}
                 {onAdd && (
@@ -97,8 +100,8 @@ export default function ProductCard({ product, onAdd }: ProductCardProps) {
                             onClick={() => onAdd(quantity)}
                             disabled={product.stock !== undefined && product.stock <= 0}
                             className={`flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${product.stock !== undefined && product.stock <= 0
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                         >
                             {product.stock !== undefined && product.stock <= 0
