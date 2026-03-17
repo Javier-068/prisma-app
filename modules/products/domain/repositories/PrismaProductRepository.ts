@@ -1,12 +1,16 @@
 import prisma from "@/lib/prisma";
 import { ProductRepository } from "./ProductRepository";
-import { Product } from "@/generated/prisma/client";
+import { Product } from "@/src/generated/prisma";
+import { randomUUID } from "crypto";
+
+
 
 
 export class PrismaProductRepository implements ProductRepository {
     async create(product: Product): Promise<Product> {
         const created = await prisma.product.create({
             data: {
+                
                 sku: product.sku,
                 name: product.name,
                 description: product.description,
@@ -14,6 +18,7 @@ export class PrismaProductRepository implements ProductRepository {
                 price: product.price,
                 stock: product.stock,
                 active: product.active ?? true,
+             
             },
         });
         return created;

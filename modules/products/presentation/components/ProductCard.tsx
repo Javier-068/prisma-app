@@ -17,12 +17,12 @@ interface Product {
 
 interface ProductCardProps {
     product: Product;
-    onAdd?: (quantity: number) => void; // 👈 ahora recibe cantidad
+    onAdd?: (quantity: number) => void; 
 }
 
 export default function ProductCard({ product, onAdd }: ProductCardProps) {
     const [loading, setLoading] = useState(false);
-    const [quantity, setQuantity] = useState(1); // 👈 cantidad seleccionada
+    const [quantity, setQuantity] = useState(1); 
     const router = useRouter();
 
     async function handleDelete() {
