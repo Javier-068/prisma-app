@@ -1,5 +1,5 @@
 import ProductListView from "@/modules/products/presentation/views/ProductListView";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export default async function ProductsListPage() {
     // Traer productos directamente desde la base de datos
