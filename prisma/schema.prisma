@@ -34,16 +34,16 @@ model Orderdetail {
 }
 
 model Product {
-  id          String        @id
-  sku         String        @unique(map: "Product_sku_key")
-  name        String
+  id        String   @id @default(uuid())
+  sku       String
+  name      String
   description String?
-  image       String?
-  price       Float
-  stock       Int
-  active      Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  image     String?
+  price     Float
+  stock     Int
+  active    Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   orderdetail Orderdetail[]
 }
 
