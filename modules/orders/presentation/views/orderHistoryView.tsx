@@ -20,6 +20,13 @@ interface Order {
     orderdetail: OrderDetail[];
 }
 
+const statusMap: Record<string, string> = {
+    PENDING: "Pendiente",
+    CONFIRMED: "Confirmado",
+    DELIVERED: "Entregado",
+    CANCELLED: "Cancelado",
+};
+
 export default function OrdersHistoryView() {
     const { data: session, status } = useSession();
     const [orders, setOrders] = useState<Order[]>([]);
@@ -60,7 +67,8 @@ export default function OrdersHistoryView() {
                     {orders.map((order) => (
                         <div key={order.id} className="bg-white shadow rounded p-4">
                             <p className="text-gray-700 font-semibold">
-                                Fecha: {new Date(order.createdAt).toLocaleDateString()} — Estado: {order.status}
+                                Fecha: {new Date(order.createdAt).toLocaleDateString()} — Estado:{" "}
+                                {statusMap[order.status] || order.status}
                             </p>
                             <ul className="mt-2 space-y-1">
                                 {order.orderdetail.map((detail) => (

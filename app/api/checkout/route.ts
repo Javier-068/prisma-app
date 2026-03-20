@@ -1,3 +1,5 @@
+// app/api/checkout/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { CreateCheckoutSessionUseCase } from "@/modules/orders/application/createCheckoutSession.use-case";
 

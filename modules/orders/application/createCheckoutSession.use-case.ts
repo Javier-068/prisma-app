@@ -22,28 +22,47 @@ export class CreateCheckoutSessionUseCase {
     });
     if (!user) throw new Error("Usuario no encontrado");
 
+    // Validar stock antes de crear la orden
+    for (const item of items) {
+      const product = await prisma.product.findUnique({ where: { id: item.id } });
+      if (!product || product.stock < item.quantity) {
+        throw new Error(`Stock insuficiente para ${item.name}`);
+      }
+    }
+
     // Calcular total
     const total = items.reduce(
       (acc, item) => acc + item.price * item.quantity,
       0
     );
 
-    // Guardar orden en BD
-    const order = await prisma.order.create({
-      data: {
-        id: crypto.randomUUID(),
-        userId: user.id,
-        total,
-        status: "PENDING",
-        orderdetail: {
-          create: items.map((item) => ({
-            id: crypto.randomUUID(),
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+    // Crear orden y descontar stock en una transacción
+    const order = await prisma.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          id: crypto.randomUUID(),
+          userId: user.id,
+          total,
+          status: "PENDING",
+          orderdetail: {
+            create: items.map((item) => ({
+              id: crypto.randomUUID(),
+              productId: item.id,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+          },
         },
-      },
+      });
+
+      for (const item of items) {
+        await tx.product.update({
+          where: { id: item.id },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
+
+      return newOrder;
     });
 
     // Crear sesión de Stripe
