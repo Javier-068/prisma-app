@@ -100,8 +100,8 @@ export default function ProductCard({ product, onAdd, showDelete }: ProductCardP
                             onClick={() => onAdd(quantity)}
                             disabled={product.stock !== undefined && product.stock <= 0}
                             className={`flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${product.stock !== undefined && product.stock <= 0
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                                 }`}
                         >
                             {product.stock !== undefined && product.stock <= 0

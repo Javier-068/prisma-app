@@ -119,12 +119,24 @@ export default function ProductForm() {
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Imagen (URL)</label>
                     <input
-                        type="text"
-                        placeholder="https://ejemplo.com/imagen.png"
-                        value={form.image}
-                        onChange={(e) => setForm({ ...form, image: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                            focus:border-indigo-500 focus:ring-indigo-500 px-3 py-2 text-gray-900"
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            const formData = new FormData();
+                            formData.append("file", file);
+
+                            const res = await fetch("/api/upload", {
+                                method: "POST",
+                                body: formData,
+                            });
+
+                            const data = await res.json();
+                            console.log("Respuesta upload:", data);
+                            setForm({ ...form, image: data.url });
+                        }}
                     />
                 </div>
 
@@ -140,6 +152,7 @@ export default function ProductForm() {
 
                 <button
                     type="submit"
+                    disabled={!form.image}
                     className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 
                         rounded-md shadow hover:bg-indigo-700 transition-colors"
                 >

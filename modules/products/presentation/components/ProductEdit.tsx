@@ -80,11 +80,26 @@ export default function ProductEdit({ id }: { id: string }) {
                         placeholder="Descripción"
                     />
                     <input
-                        type="text"
-                        value={product.image || ""}
-                        onChange={(e) => setProduct({ ...product, image: e.target.value })}
-                        className="w-full border p-2 rounded text-black placeholder-gray-500"
-                        placeholder="URL de imagen"
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            const formData = new FormData();
+                            formData.append("file", file);
+
+                            const res = await fetch("/api/upload", {
+                                method: "POST",
+                                body: formData,
+                            });
+
+                            const data = await res.json();
+                            console.log("Respuesta upload:", data);
+                            if (data.url) {
+                                setProduct({ ...product!, image: data.url }); // guardas la URL pública
+                            }
+                        }}
                     />
                     <input
                         type="number"
@@ -111,7 +126,7 @@ export default function ProductEdit({ id }: { id: string }) {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !product.image} // 👈 usar product.image
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
                     >
                         {loading ? "Actualizando..." : "Actualizar Producto"}

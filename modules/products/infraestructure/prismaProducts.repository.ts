@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { Product } from "@prisma/client";
 import { ProductRepository } from "../domain/repositories/ProductRepository";
 
