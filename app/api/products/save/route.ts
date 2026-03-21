@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
     try {
         const data = await req.json();
+        console.log("Datos recibidos:", data); // 👈 revisa aquí
 
         const product = await prisma.product.create({
             data: {
