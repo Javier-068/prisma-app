@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Product {
@@ -25,6 +26,7 @@ export default function ProductEdit({ id }: { id: string }) {
         fetchProduct();
     }, [id]);
 
+    const rourter = useRouter();
     async function handleUpdate(e: React.FormEvent) {
         e.preventDefault();
         if (!product) return;
@@ -41,6 +43,8 @@ export default function ProductEdit({ id }: { id: string }) {
             const updated = await res.json();
             alert("Producto actualizado correctamente");
             setProduct(updated);
+            rourter.push(`/products/${id}`); 
+
         } catch (err) {
             console.error("Error actualizando producto:", err);
             alert("No se pudo actualizar el producto");

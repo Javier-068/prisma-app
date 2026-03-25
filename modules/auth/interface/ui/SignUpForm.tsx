@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function SignUpForm() {
@@ -9,6 +10,7 @@ export function SignUpForm() {
     const [adminKey, setAdminKey] = useState(""); // 👈 clave secreta para ADMIN
     const [error, setError] = useState("");
 
+    const router = useRouter();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -25,11 +27,14 @@ export function SignUpForm() {
             if (!res.ok) {
                 setError(data.error || "Error en el registro");
             } else {
+                alert("Registro exitoso");
                 setName("");
                 setEmail("");
                 setPassword("");
                 setRole("USER");
                 setAdminKey("");
+                router.push("/profile"); // Redirige al login después del registro
+
             }
         } catch {
             setError("Error inesperado");
