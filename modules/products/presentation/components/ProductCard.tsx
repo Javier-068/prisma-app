@@ -17,8 +17,8 @@ interface Product {
 
 interface ProductCardProps {
     product: Product;
-    onAdd?: (quantity: number) => void; // botón agregar
-    showDelete?: boolean;               // 👈 controlado por el rol
+    onAdd?: (quantity: number) => void;
+    showDelete?: boolean;
 }
 
 export default function ProductCard({ product, onAdd, showDelete }: ProductCardProps) {
@@ -26,13 +26,19 @@ export default function ProductCard({ product, onAdd, showDelete }: ProductCardP
     const [quantity, setQuantity] = useState(1);
     const router = useRouter();
 
+    const isOutOfStock = (product.stock ?? 0) <= 0;
+    const isDisabled = isOutOfStock;
+
     async function handleDelete() {
         if (!confirm(`¿Seguro que quieres eliminar el producto "${product.name}"?`)) return;
+
         try {
             setLoading(true);
             const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
             const data = await res.json();
+
             if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
             alert(data.message);
             router.refresh();
         } catch (err) {
@@ -64,25 +70,34 @@ export default function ProductCard({ product, onAdd, showDelete }: ProductCardP
                     </Link>
                 </h3>
 
-                <p className="text-gray-700 mt-1">{product.description || "Sin descripción"}</p>
+                <p className="text-gray-700 mt-1">
+                    {product.description || "Sin descripción"}
+                </p>
 
                 <div className="mt-3 space-y-1">
                     <p className="text-green-600 font-bold">
-                        {product.price !== undefined ? `$${product.price} MXN` : "Precio no disponible"}
+                        {product.price !== undefined
+                            ? `$${product.price} MXN`
+                            : "Precio no disponible"}
                     </p>
+
                     <p className="text-sm text-gray-700">
                         Stock: {product.stock !== undefined ? product.stock : "No especificado"}
                     </p>
-                    <p className="text-sm text-gray-700">SKU: {product.sku || "Sin SKU"}</p>
+
+                    <p className="text-sm text-gray-700">
+                        SKU: {product.sku || "Sin SKU"}
+                    </p>
+
                     <p
-                        className={`text-sm font-semibold ${product.active ? "text-green-600" : "text-red-600"
-                            }`}
+                        className={`text-sm font-semibold ${
+                            isOutOfStock ? "text-red-600" : "text-green-600"
+                        }`}
                     >
-                        {product.active ? "Activo" : "Inactivo"}
+                        {isOutOfStock ? "Inactivo" : "Activo"}
                     </p>
                 </div>
 
-                {/* Botón eliminar solo si showDelete es true */}
                 {showDelete && (
                     <button
                         onClick={handleDelete}
@@ -93,20 +108,18 @@ export default function ProductCard({ product, onAdd, showDelete }: ProductCardP
                     </button>
                 )}
 
-                {/* Selector de cantidad + botón agregar */}
                 {onAdd && (
                     <div className="mt-2 flex gap-2 items-center">
                         <button
                             onClick={() => onAdd(quantity)}
-                            disabled={product.stock !== undefined && product.stock <= 0}
-                            className={`flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 ${product.stock !== undefined && product.stock <= 0
+                            disabled={isDisabled}
+                            className={`flex-1 bg-blue-600 text-white py-2 rounded ${
+                                isDisabled
                                     ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
+                                    : "hover:bg-blue-700"
+                            }`}
                         >
-                            {product.stock !== undefined && product.stock <= 0
-                                ? "Sin stock"
-                                : "Agregar al carrito"}
+                            {isOutOfStock ? "Inactivo" : "Agregar al carrito"}
                         </button>
 
                         <input
@@ -114,8 +127,9 @@ export default function ProductCard({ product, onAdd, showDelete }: ProductCardP
                             min={1}
                             max={product.stock ?? 99}
                             value={quantity}
-                            onChange={(e) => setQuantity(parseInt(e.target.value))}
+                            onChange={(e) => setQuantity(Number(e.target.value) || 1)}
                             className="w-16 border rounded px-2 py-1 text-center text-gray-700"
+                            disabled={isDisabled}
                         />
                     </div>
                 )}
