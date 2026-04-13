@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-
 }
 
 model Order {
@@ -21,41 +20,42 @@ model Order {
 }
 
 model Orderdetail {
-  id        String  @id
+  id        String @id
   orderId   String
   productId String
   quantity  Int
   price     Float
-  order     Order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey")
-  product   Product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey")
+
+  order   Order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey", onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey", onDelete: Cascade)
 
   @@index([orderId], map: "OrderDetail_orderId_fkey")
   @@index([productId], map: "OrderDetail_productId_fkey")
 }
 
 model Product {
-  id        String   @id @default(uuid())
-  sku       String
-  name      String
+  id          String        @id @default(uuid())
+  sku         String
+  name        String
   description String?
-  image     String?
-  price     Float
-  stock     Int
-  active    Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  image       String?
+  price       Float
+  stock       Int
+  active      Boolean
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   orderdetail Orderdetail[]
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(uuid())
   email         String    @unique(map: "User_email_key")
   password      String?
   name          String?
   emailVerified DateTime?
   role          user_role @default(USER)
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime  @updatedAt
   order         Order[]
 }
 
