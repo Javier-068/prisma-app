@@ -21,20 +21,24 @@ export async function POST(req: Request) {
             );
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 👇 validación segura
-        let finalRole: "USER" | "ADMIN" = "USER";
-        if (role === "ADMIN" && adminKey === process.env.ADMIN_SECRET) {
-            finalRole = "ADMIN";
+        // Validación estricta del rol ADMIN
+        if (role === "ADMIN") {
+            if (adminKey !== process.env.ADMIN_SECRET) {
+                return NextResponse.json(
+                    { error: "Clave de administrador incorrecta" },
+                    { status: 401 }
+                );
+            }
         }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
-                role: finalRole,
+                role, // 👈 ahora sí respeta el rol enviado
             },
         });
 
