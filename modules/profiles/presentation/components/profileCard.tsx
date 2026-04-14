@@ -1,4 +1,16 @@
 export default function ProfileCard({ user }: { user: any }) {
+    // 👇 función para traducir el rol
+    const getRoleLabel = (role: string) => {
+        switch (role) {
+            case "ADMIN":
+                return "Administrador";
+            case "USER":
+                return "Usuario";
+            default:
+                return role; // si llega otro valor, lo mostramos tal cual
+        }
+    };
+
     return (
         <div className="grid gap-6 sm:grid-cols-2">
             <div className="p-6 bg-gray-50 rounded-lg shadow">
@@ -13,7 +25,7 @@ export default function ProfileCard({ user }: { user: any }) {
 
             <div className="p-6 bg-gray-50 rounded-lg shadow">
                 <p className="text-lg font-semibold text-gray-700">Rol</p>
-                <p className="text-gray-900">{user?.role}</p>
+                <p className="text-gray-900">{getRoleLabel(user?.role)}</p>
             </div>
         </div>
     );
