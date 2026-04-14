@@ -39,7 +39,13 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
         } else {
             updated = [
                 ...cart,
-                { id: product.id, name: product.name, price: product.price ?? 0, quantity },
+                {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price ?? 0,
+                    quantity,
+                    image: product.image // 👈 guardamos la imagen
+                },
             ];
         }
 
@@ -75,7 +81,7 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
                             key={p.id}
                             product={p}
                             onAdd={(quantity) => handleAdd(p, quantity)}
-                            showDelete={session?.user?.role === "ADMIN"} // 👈 solo ADMIN ve el botón
+                            showDelete={session?.user?.role === "ADMIN"}
                         />
                     ))
                 )}
