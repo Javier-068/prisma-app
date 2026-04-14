@@ -7,6 +7,7 @@ interface CartItem {
     name: string;
     price: number;
     quantity: number;
+    image?: string; // 👈 añadimos la propiedad
 }
 
 export default function CartView() {
@@ -35,41 +36,41 @@ export default function CartView() {
         }
     }
 
- async function handleCheckout() {
-    try {
-        if (!session?.user?.email) {
-            alert("Debes iniciar sesión");
-            return;
+    async function handleCheckout() {
+        try {
+            if (!session?.user?.email) {
+                alert("Debes iniciar sesión");
+                return;
+            }
+
+            if (items.length === 0) {
+                alert("El carrito está vacío");
+                return;
+            }
+
+            const response = await fetch("/api/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    items,
+                    customerEmail: session.user.email,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "No se pudo iniciar el pago");
+            }
+
+            window.location.href = data.url;
+        } catch (error) {
+            console.error("Error al ir a Stripe:", error);
+            alert("No se pudo iniciar el pago");
         }
-
-        if (items.length === 0) {
-            alert("El carrito está vacío");
-            return;
-        }
-
-        const response = await fetch("/api/checkout", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                items,
-                customerEmail: session.user.email,
-            }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || "No se pudo iniciar el pago");
-        }
-
-        window.location.href = data.url;
-    } catch (error) {
-        console.error("Error al ir a Stripe:", error);
-        alert("No se pudo iniciar el pago");
     }
-}
 
     if (status === "loading") {
         return <p className="text-gray-500">Cargando carrito...</p>;
@@ -98,9 +99,18 @@ export default function CartView() {
                             key={item.id}
                             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                         >
-                            <div className="h-48 w-full bg-gray-200 flex items-center justify-center text-gray-700 font-bold">
-                                {item.name.charAt(0).toUpperCase()}
-                            </div>
+                            {/* 👇 Aquí mostramos la imagen si existe */}
+                            {item.image ? (
+                                <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="h-48 w-full object-cover"
+                                />
+                            ) : (
+                                <div className="h-48 w-full bg-gray-200 flex items-center justify-center text-gray-700 font-bold">
+                                    {item.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
 
                             <div className="p-4">
                                 <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
