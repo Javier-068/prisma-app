@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import ProductCard from "../components/ProductCard";
 
 interface Product {
@@ -17,6 +18,7 @@ interface Product {
 export default function ProductListView({ initialProducts }: { initialProducts: Product[] }) {
     const { data: session, status } = useSession();
     const [products, setProducts] = useState<Product[]>(initialProducts);
+    const router = useRouter();
 
     function handleAdd(product: Product, quantity: number) {
         if (!session) {
@@ -44,7 +46,7 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
                     name: product.name,
                     price: product.price ?? 0,
                     quantity,
-                    image: product.image // 👈 guardamos la imagen
+                    image: product.image
                 },
             ];
         }
@@ -86,6 +88,17 @@ export default function ProductListView({ initialProducts }: { initialProducts: 
                     ))
                 )}
             </div>
+
+            {/* Botón flotante para agregar producto */}
+            {session?.user?.role === "ADMIN" && (
+                <button
+                    onClick={() => router.push("/products/new")}
+                    className="fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-full shadow-lg 
+                               hover:bg-green-700 transition-all"
+                >
+                    + Agregar Producto
+                </button>
+            )}
         </div>
     );
 }

@@ -59,13 +59,6 @@ export default function Header() {
                         >
                            🍎  Productos
                         </Link>
-
-                        
-                            <Link   href="/products/new"
-                            className="block px-4 py-2 hover:bg-gray-100"
-                            onClick={() => setOpen(false)}>
-                            ⚙️ Registrar producto
-                            </Link>
                         
                     </div>
 

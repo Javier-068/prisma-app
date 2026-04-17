@@ -17,7 +17,7 @@ interface Order {
     createdAt: string;
     status: string;
     total: number;
-    orderdetail: OrderDetail[];
+    orderDetails: OrderDetail[];
 }
 
 const statusMap: Record<string, string> = {
@@ -31,18 +31,26 @@ export default function OrdersHistoryView() {
     const { data: session, status } = useSession();
     const [orders, setOrders] = useState<Order[]>([]);
 
-    useEffect(() => {
-        if (status === "loading") return;
+    const fetchOrders = async () => {
         if (!session?.user?.email) return;
+        const res = await fetch(`/api/orders?email=${session.user.email}`);
+        const data = await res.json();
+        setOrders(data);
+    };
 
-        const fetchOrders = async () => {
-            const res = await fetch(`/api/orders?email=${session.user.email}`);
-            const data = await res.json();
-            setOrders(data);
-        };
+    useEffect(() => {
+        if (status !== "loading") fetchOrders();
+    }, [session, status]);
+
+    const markAsDelivered = async (orderId: string) => {
+        await fetch("/api/orders", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId }),
+        });
 
         fetchOrders();
-    }, [session, status]);
+    };
 
     if (status === "loading") {
         return <p className="text-gray-500">Cargando historial...</p>;
@@ -65,21 +73,35 @@ export default function OrdersHistoryView() {
             ) : (
                 <div className="space-y-6">
                     {orders.map((order) => (
-                        <div key={order.id} className="bg-white shadow rounded p-4">
+                        <div
+                            key={order.id}
+                            className="bg-white shadow rounded p-4 relative" // 👈 necesario para posicionar el botón
+                        >
                             <p className="text-gray-700 font-semibold">
                                 Fecha: {new Date(order.createdAt).toLocaleDateString()} — Estado:{" "}
                                 {statusMap[order.status] || order.status}
                             </p>
+
                             <ul className="mt-2 space-y-1">
-                                {order.orderdetail.map((detail) => (
+                                {order.orderDetails.map((detail) => (
                                     <li key={detail.id} className="text-gray-600">
                                         {detail.product.name} — {detail.quantity} × ${detail.price} MXN
                                     </li>
                                 ))}
                             </ul>
+
                             <p className="mt-2 font-bold text-gray-800">
                                 Total: ${order.total} MXN
                             </p>
+
+                            {order.status !== "DELIVERED" && (
+                                <button
+                                    onClick={() => markAsDelivered(order.id)}
+                                    className="absolute bottom-2 right-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                >
+                                    Marcar como entregado
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>

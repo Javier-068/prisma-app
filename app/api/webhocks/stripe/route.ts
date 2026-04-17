@@ -2,8 +2,7 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import prisma from "@/lib/prisma";
-import { SavePaidOrderUseCase } from "@/modules/orders/application/savePaid";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -29,49 +28,20 @@ export async function POST(req: NextRequest) {
   if (event.type === "checkout.session.completed") {
     try {
       const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderId;
 
-      const customerEmail = session.metadata?.customerEmail;
-      const itemsRaw = session.metadata?.items;
-
-      if (!customerEmail || !itemsRaw) {
+      if (!orderId) {
+        console.error("No se encontró orderId en metadata");
         return NextResponse.json({ received: true });
       }
 
-      const user = await prisma.user.findUnique({
-        where: {
-          email: customerEmail,
-        },
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: "CONFIRMED" },
       });
 
-      if (!user) {
-        throw new Error("Usuario no encontrado");
-      }
-
-      const items = JSON.parse(itemsRaw) as {
-        id: string;
-        name: string;
-        price: number;
-        quantity: number;
-      }[];
-
-      const total = items.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-      );
-
-      const useCase = new SavePaidOrderUseCase();
-
-      await useCase.execute({
-        userId: user.id,
-        items: items.map((item) => ({
-          id: item.id,
-          price: item.price,
-          quantity: item.quantity,
-        })),
-        total,
-      });
     } catch (error) {
-      console.error("Error guardando la orden después del pago:", error);
+      console.error("Error actualizando la orden:", error);
       return new NextResponse("Error procesando pago", { status: 500 });
     }
   }

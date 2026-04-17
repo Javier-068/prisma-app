@@ -43,17 +43,18 @@ export class CreateCheckoutSessionUseCase {
           id: crypto.randomUUID(),
           userId: user.id,
           total,
-          status: "PENDING",
-          orderdetail: {
-            create: items.map((item) => ({
+          status: "CONFIRMED",
+          orderDetails: {
+            create: items.map(item => ({
               id: crypto.randomUUID(),
               productId: item.id,
               quantity: item.quantity,
-              price: item.price,
-            })),
-          },
-        },
+              price: item.price
+            }))
+          }
+        }
       });
+
 
       for (const item of items) {
         await tx.product.update({

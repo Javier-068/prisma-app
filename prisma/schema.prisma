@@ -6,75 +6,113 @@ datasource db {
   provider = "mysql"
 }
 
-model Order {
-  id          String        @id
-  userId      String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  status      order_status  @default(PENDING)
-  total       Float
-  user        User          @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
-  orderdetail Orderdetail[]
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
 
-  @@index([userId], map: "Order_userId_fkey")
-}
-
-model Orderdetail {
-  id        String @id
-  orderId   String
-  productId String
-  quantity  Int
-  price     Float
-
-  order   Order   @relation(fields: [orderId], references: [id], map: "OrderDetail_orderId_fkey", onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], map: "OrderDetail_productId_fkey", onDelete: Cascade)
-
-  @@index([orderId], map: "OrderDetail_orderId_fkey")
-  @@index([productId], map: "OrderDetail_productId_fkey")
-}
-
-model Product {
-  id          String        @id @default(uuid())
-  sku         String
-  name        String
-  description String?
-  image       String?
-  price       Float
-  stock       Int
-  active      Boolean
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  orderdetail Orderdetail[]
-}
-
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique(map: "User_email_key")
-  password      String?
-  name          String?
-  emailVerified DateTime?
-  role          user_role @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  order         Order[]
-}
-
-model verificationtoken {
-  identifier String
-  token      String   @unique(map: "VerificationToken_token_key")
-  expires    DateTime
-
-  @@unique([identifier, token], map: "VerificationToken_identifier_token_key")
-}
-
-enum order_status {
+enum OrderStatus {
   PENDING
   CONFIRMED
   DELIVERED
   CANCELLED
 }
 
-enum user_role {
+enum UserRole {
   USER
   ADMIN
+}
+
+// ─────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  emailVerified DateTime?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders Order[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────
+// PRODUCT
+// ─────────────────────────────────────────
+
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  description String?  @db.Text
+  image       String?
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderDetails OrderDetail[]
+
+  @@index([sku])
+  @@index([active])
+  @@map("products")
+}
+
+// ─────────────────────────────────────────
+// ORDER
+// ─────────────────────────────────────────
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  status    OrderStatus @default(PENDING)
+  total     Decimal     @db.Decimal(10, 2)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  orderDetails OrderDetail[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+// ─────────────────────────────────────────
+// ORDER DETAIL
+// ─────────────────────────────────────────
+
+model OrderDetail {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_details")
+}
+
+// ─────────────────────────────────────────
+// VERIFICATION TOKEN
+// ─────────────────────────────────────────
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }

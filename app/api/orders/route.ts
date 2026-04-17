@@ -21,7 +21,7 @@ export async function POST(req: Request) {
                     (acc: number, item: any) => acc + item.quantity * item.price,
                     0
                 ),
-                orderdetail: {
+                orderDetails: {   // ✅ CORREGIDO
                     create: items.map((item: any) => ({
                         id: crypto.randomUUID(),
                         productId: item.id,
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
                     })),
                 },
             },
-            include: { orderdetail: true },
+            include: { orderDetails: true }, // ✅ CORREGIDO
         });
 
         for (const item of items) {
@@ -57,7 +57,10 @@ export async function GET(req: NextRequest) {
         if (orderId) {
             const order = await prisma.order.findUnique({
                 where: { id: orderId },
-                include: { orderdetail: { include: { product: true } }, user: true },
+                include: {
+                    orderDetails: { include: { product: true } }, // ✅ CORREGIDO
+                    user: true
+                },
             });
             if (!order) {
                 return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
@@ -70,7 +73,7 @@ export async function GET(req: NextRequest) {
             if (!user) return NextResponse.json([]);
             const orders = await prisma.order.findMany({
                 where: { userId: user.id },
-                include: { orderdetail: { include: { product: true } } },
+                include: { orderDetails: { include: { product: true } } }, // ✅ CORREGIDO
                 orderBy: { createdAt: "desc" },
             });
             return NextResponse.json(orders);
@@ -79,14 +82,17 @@ export async function GET(req: NextRequest) {
         if (userId) {
             const orders = await prisma.order.findMany({
                 where: { userId },
-                include: { orderdetail: { include: { product: true } } },
+                include: { orderDetails: { include: { product: true } } }, // ✅ CORREGIDO
                 orderBy: { createdAt: "desc" },
             });
             return NextResponse.json(orders);
         }
 
         const allOrders = await prisma.order.findMany({
-            include: { orderdetail: { include: { product: true } }, user: true },
+            include: {
+                orderDetails: { include: { product: true } }, // ✅ CORREGIDO
+                user: true
+            },
             orderBy: { createdAt: "desc" },
         });
         return NextResponse.json(allOrders);
@@ -95,3 +101,19 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "No se pudieron obtener los pedidos" }, { status: 500 });
     }
 }
+export async function PATCH(req: NextRequest) {
+    try {
+        const { orderId } = await req.json();
+
+        const updated = await prisma.order.update({
+            where: { id: orderId },
+            data: { status: "DELIVERED" },
+        });
+
+        return NextResponse.json(updated);
+    } catch (err) {
+        console.error("Error actualizando estado:", err);
+        return NextResponse.json({ error: "No se pudo actualizar el estado" }, { status: 500 });
+    }
+}
+
